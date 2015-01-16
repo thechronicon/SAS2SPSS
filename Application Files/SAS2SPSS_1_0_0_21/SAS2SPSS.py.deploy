@@ -1,0 +1,59 @@
+import csv
+import os
+
+inputFile = open('filelist.csv','rU')##<--Set input file here
+filelist = list(csv.reader(inputFile))
+
+outputFile = open('transposed.csv','wb')
+transposed = csv.writer(outputFile, dialect='excel')
+
+outputArray = []
+for j in range(0, len(filelist)):
+    filepath = os.path.normpath(str(filelist[j])[2:-2])
+    outputArray.append(str(filepath))
+
+transposed.writerow(outputArray)
+
+outputFile.close()
+
+spreadSheet = file('transposed.csv', 'rU')
+reader = csv.reader(spreadSheet)
+
+##Read SAS and SPSS filenames
+SASname = reader.next()
+SPSSname = []
+
+cases = len(SASname)
+
+for x in range(0, cases):
+    truncation = str(SASname[x])[0:-3]
+    entry = truncation + "sav"
+    SPSSname.append(entry)
+
+##SPSS Syntax Code Snippets
+CodeGet = "GET"
+CodeSASpre = "  SAS DATA='"
+CodeSASpost = "'."
+
+CodeDatasetpre = "DATASET NAME Dataset"
+CodeDatasetpost = " WINDOW=FRONT."
+
+CodeSavepre = "SAVE OUTFILE='"
+CodeSavepost = "'"
+CodeCompressed = "  /COMPRESSED."
+
+CodeDataClose = "DATASET CLOSE Dataset"
+
+
+for case in range(0,cases):
+    print CodeGet
+    print CodeSASpre+str(SASname[case])+CodeSASpost
+    print CodeDatasetpre + str(case+1) + CodeDatasetpost
+    print ""
+    print CodeSavepre+str(SPSSname[case])+CodeSavepost
+    print CodeCompressed
+    print ""
+    print CodeDataClose+str(case+1)
+    print ""
+
+
